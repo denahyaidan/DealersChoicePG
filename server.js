@@ -1,46 +1,3 @@
-// const express = require('express');
-// const pg = require('pg');
-// const vb = require('volleyball');
-
-// const app = express();
-
-// const PORT = 3000 || process.env.port;
-
-// const client = new pg.Client('postgres://localhost/pokemon');
-
-
-
-// const syncAndSeed = async () => {
-//     const SQL = `
-//     DROP TABLE IF EXISTS pokedex;
-//     DROP TABLE IF EXISTS pokemon;
-//     CREATE TABLE pokemon-types (
-//         id INTEGER PRIMARY KEY,
-//         type TEXT NOT NULL,
-//         name TEXT NOT NULL,
-//         description TEXT NOT NULL
-//     );//
-//     INSERT INTO 'pokemon' (id, type, name, description) VALUES (1, 'Fire', 'Charizard', 'A flaming dragon.');
-//     INSERT INTO 'pokemon' (id, type, name, description) VALUES (2, 'Water', 'Squirtle', 'A watery turtle.');
-//     INSERT INTO 'pokemon' (id, type, name, description) VALUES (3, 'Electric', 'Pikachu', 'An electric mouse.' );
-//     `
-
-//     await client.query(SQL);
-// }
-
-// const setUp = async () => {
-//     try {
-//         await client.connect();
-//         await syncAndSeed();
-//     }
-//     catch (err) {
-//         console.log(err)
-//     }
-// }
-
-// setUp();
-
-// app.listen(PORT, () => console.log('listening on port 3000'));
 
 const pg = require('pg');
 const express = require('express');
@@ -54,8 +11,6 @@ app.get('/', async (req, res, next) => {
     try {
         const response = await client.query('SELECT * FROM pokedex;')
         const pokemon = response.rows
-        console.log(pokemon)
-        console.log(pokemon[0].id)
         
         res.send(`<html>
         <head></head>
@@ -65,7 +20,7 @@ app.get('/', async (req, res, next) => {
         <ul>
 
         ${pokemon.map(ele => {
-            `
+            return `
             <li>
             <a href=/pokemon/${ele.id}> ${ele.name} </a>
             </li>
@@ -85,12 +40,11 @@ app.get('/', async (req, res, next) => {
 })
 
 
-app.get('pokemon/:id', async (req, res, next) => {
+app.get('/pokemon/:id', async (req, res, next) => {
         try {
-        const response = await client.query('SELECT * FROM pokedex WHERE brand_id=$1;', [req.params.id])
-        const id = req.params.id-1
-        const pokemon = response.rows[id]
-        console.log('hello')
+        const response = await client.query('SELECT * FROM pokedex WHERE id=$1;', [req.params.id])
+        const pokemon = response.rows[0]
+        console.log(pokemon)
 
         res.send(`<html>
         <head></head>
@@ -99,7 +53,9 @@ app.get('pokemon/:id', async (req, res, next) => {
 
             <h2> ${pokemon.name} </h2>
             <h3> A ${pokemon.type} type pokemon </h3>
-            <p> ${pokemon.description} </p>
+            <p> Description: ${pokemon.description}</p>
+
+        <input type="button" value="Go back!" onclick="history.back()">
         </body>
         </html>`)
         }
